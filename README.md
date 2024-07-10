@@ -1,3 +1,3 @@
-# python-package-template
+# freetype-py-stubs
 
-A template for Python project to be published on PyPI with setuptools, python-build, PyPI trusted publishing and github actions auto release.
+Stubs for rougier/freetype-py.

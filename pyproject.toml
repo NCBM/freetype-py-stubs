@@ -1,19 +1,22 @@
 [project]
-# name = "Project name..."
-# version = "Project version, e.g. 0.0.1"
-# description = "Project description..."
-# authors = [
-#     {name = "Author name", email = "Author email"},
-#     ...
-# ]
-# license = {text = "Project license on PyPI, e.g. MIT"}
-# dependencies = ["dependency1...", "dependency2...", ...]
-# requires-python = ">=3.9"
+name = "freetype-py-stubs"
+version = "0.0.1"
+description = "Stubs for freetype-py."
+authors = [
+    {name = "HivertMoZara", email = "worldmozara@163.com"},
+]
+license = {text = "MIT"}
+dependencies = ["freetype-py>=2,<3", "typing_extensions>=4.6.0,<5"]
+requires-python = ">=3.9"
 readme = "README.md"
 
 [project.urls]
-# Homepage = "https://github.com/..."
-# Repository = "https://github.com/..."
+Homepage = "https://github.com/NCBM/freetype-py-stubs"
+Repository = "https://github.com/NCBM/freetype-py-stubs"
+
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
 
 [tool.pyright]
 pythonVersion = "3.9"
