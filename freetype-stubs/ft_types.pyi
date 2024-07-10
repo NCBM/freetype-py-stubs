@@ -122,7 +122,7 @@ FT_Glyph_Format = c_int
 
 FT_Encoding     = c_int
 
-FT_Generic_Finalizer = Annotated[_FuncPointer, Callable[[c_void_p], None]]
+FT_Generic_Finalizer = _FuncPointer  # Callable[[c_void_p], None]
 """
 Describe a function used to destroy the 'client' data of any FreeType
 object. See the description of the FT_Generic type for details of usage.

@@ -1,14 +1,3 @@
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    BinaryIO,
-    Callable,
-    Generator,
-    Iterable,
-    Self,
-    TypeVar,
-)
-
 from freetype.ft_enums import FT_KERNING_DEFAULT, FT_LOAD_RENDER
 from freetype.ft_structs import (
     FT_BBox,
@@ -29,6 +18,16 @@ from freetype.ft_structs import (
     FT_StrokerRec,
     FT_Var_Axis,
     FT_Vector,
+)
+from typing_extensions import (
+    TYPE_CHECKING,
+    Any,
+    BinaryIO,
+    Callable,
+    Generator,
+    Iterable,
+    Self,
+    TypeVar,
 )
 
 if TYPE_CHECKING:
