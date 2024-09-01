@@ -1,3 +1,6 @@
+import sys
+from ctypes import c_void_p
+
 from freetype.ft_enums import FT_KERNING_DEFAULT, FT_LOAD_RENDER
 from freetype.ft_structs import (
     FT_BBox,
@@ -19,6 +22,7 @@ from freetype.ft_structs import (
     FT_Var_Axis,
     FT_Vector,
 )
+from freetype.raw import filename
 from typing_extensions import (
     TYPE_CHECKING,
     Any,
@@ -28,15 +32,28 @@ from typing_extensions import (
     Iterable,
     Self,
     TypeVar,
+    override,
 )
+
+if sys.version_info >= (3,):
+    # Hack to get unicode class in python3
+    unicode = str
 
 if TYPE_CHECKING:
     # use TYPE_CHECKING here because they doesn't exist actually.
-    from ctypes import _FuncPointer, _Pointer
+    # intentionally annotate with a pseudo type.
+    from ctypes import _FuncPointer, _Pointer  # pyright: ignore[reportPrivateUsage]
 
-    from freetype.ft_types import _Encoding, _F26Dot6, _Fixed, _Pos
+    from freetype.ft_types import (
+        _Encoding,  # pyright: ignore[reportPrivateUsage]
+        _F26Dot6,  # pyright: ignore[reportPrivateUsage]
+        _Fixed,  # pyright: ignore[reportPrivateUsage]
+        _Pos,  # pyright: ignore[reportPrivateUsage]
+    )
 
     CharLike = int | str
+
+def unmake_tag(i: int) -> str: ...
 
 class _FT_Library_Wrapper(_Pointer[FT_LibraryRec]):
     """Subclass of FT_Library to help with calling FT_Done_FreeType"""
@@ -44,8 +61,8 @@ class _FT_Library_Wrapper(_Pointer[FT_LibraryRec]):
     def __del__(self) -> None: ...
 
 _handle: _FT_Library_Wrapper
+FT_Library_filename = filename
 
-def unmake_tag(i: int) -> str: ...
 def _init_freetype() -> None: ...
 def get_handle() -> _FT_Library_Wrapper:
     """Get unique FT_Library handle"""
@@ -183,7 +200,7 @@ class GlyphMetrics:
 
     _FT_Glyph_Metrics: FT_Glyph_Metrics
 
-    def __init__(self, metrics: FT_Glyph_Metrics):
+    def __init__(self, metrics: FT_Glyph_Metrics) -> None:
         """
         Create a new GlyphMetrics object.
 
@@ -352,7 +369,7 @@ class BitmapSize:
 
     _FT_Bitmap_Size: FT_Bitmap_Size
 
-    def __init__(self, size: FT_Bitmap_Size):
+    def __init__(self, size: FT_Bitmap_Size) -> None:
         """
         Create a new SizeMetrics object.
 
@@ -407,7 +424,7 @@ class Bitmap(object):
 
     _FT_Bitmap: FT_Bitmap
 
-    def __init__(self, bitmap):
+    def __init__(self, bitmap: _Pointer[FT_Bitmap]) -> None:
         """
         Create a new Bitmap object.
 
@@ -480,7 +497,7 @@ class Bitmap(object):
         ...
 
     @property
-    def palette(self) -> _Pointer:
+    def palette(self) -> c_void_p:
         """
         A typeless pointer to the bitmap palette; this field is intended for
         paletted pixel modes. Not used currently.
@@ -518,7 +535,7 @@ class Charmap:
 
     _FT_Charmap: _Pointer[FT_CharmapRec]
 
-    def __init__(self, charmap: _Pointer[FT_CharmapRec]):
+    def __init__(self, charmap: _Pointer[FT_CharmapRec]) -> None:
         """
         Create a new Charmap object.
 
@@ -607,7 +624,7 @@ class Outline:
 
     _FT_Outline: FT_Outline
 
-    def __init__(self, outline: FT_Outline):
+    def __init__(self, outline: FT_Outline) -> None:
         """
         Create a new Outline object.
 
@@ -700,16 +717,16 @@ class Outline:
         """
         ...
     _od_move_to_noop: _FuncPointer
-    def _od_move_to_builder(self, cb: _MoveToCallback | None) -> _FuncPointer: ...
+    def _od_move_to_builder(self, cb: _MoveToCallback[Any] | None) -> _FuncPointer: ...
 
     _od_line_to_noop: _FuncPointer
-    def _od_line_to_builder(self, cb: _LineToCallback | None) -> _FuncPointer: ...
+    def _od_line_to_builder(self, cb: _LineToCallback[Any] | None) -> _FuncPointer: ...
 
     _od_conic_to_noop: _FuncPointer
-    def _od_conic_to_builder(self, cb: _ConicToCallback | None) -> _FuncPointer: ...
+    def _od_conic_to_builder(self, cb: _ConicToCallback[Any] | None) -> _FuncPointer: ...
 
     _od_cubic_to_noop: _FuncPointer
-    def _od_cubic_to_builder(self, cb: _CubicToCallback | None) -> _FuncPointer: ...
+    def _od_cubic_to_builder(self, cb: _CubicToCallback[Any] | None) -> _FuncPointer: ...
     def decompose(
         self,
         context: _CBContextT = None,
@@ -767,7 +784,7 @@ class Glyph:
 
     _FT_Glyph: _Pointer[FT_GlyphRec]
 
-    def __init__(self, glyph: _Pointer[FT_GlyphRec]):
+    def __init__(self, glyph: _Pointer[FT_GlyphRec]) -> None:
         """
         Create Glyph object from an FT glyph.
 
@@ -891,7 +908,7 @@ class BitmapGlyph:
 
     _FT_BitmapGlyph: _Pointer[FT_BitmapGlyphRec]
 
-    def __init__(self, glyph: _Pointer[FT_GlyphRec]):
+    def __init__(self, glyph: _Pointer[FT_GlyphRec]) -> None:
         """
         Create Glyph object from an FT glyph.
 
@@ -901,9 +918,9 @@ class BitmapGlyph:
         """
         ...
     # def __del__( self ):
-    #     '''
+    #     """
     #     Destroy glyph.
-    #     '''
+    #     """
     #     FT_Done_Glyph( cast(self._FT_BitmapGlyph, FT_Glyph) )
 
     @property
@@ -943,7 +960,7 @@ class GlyphSlot:
 
     _FT_GlyphSlot: _Pointer[FT_GlyphSlotRec]
 
-    def __init__(self, slot: _Pointer[FT_GlyphSlotRec]):
+    def __init__(self, slot: _Pointer[FT_GlyphSlotRec]) -> None:
         """
         Create GlyphSlot object from an FT glyph slot.
 
@@ -1158,7 +1175,7 @@ class Face:
     _index: int
     _name_strings: dict[tuple[int, int, int, int], bytes]
 
-    def __init__(self, path_or_stream: str | BinaryIO, index: int = 0):
+    def __init__(self, path_or_stream: str | BinaryIO, index: int = 0) -> None:
         """
         Build a new Face
 
@@ -1904,7 +1921,7 @@ class SfntName:
 
     _FT_SfntName: FT_SfntName
 
-    def __init__(self, name: FT_SfntName):
+    def __init__(self, name: FT_SfntName) -> None:
         """
         Create a new SfntName object.
 
@@ -2069,7 +2086,7 @@ class Stroker:
         """
         ...
 
-    def conic_to(self, control: _Pointer[FT_Vector], to: _Pointer[FT_Vector]):
+    def conic_to(self, control: _Pointer[FT_Vector], to: _Pointer[FT_Vector]) -> None:
         """
         'Draw' a single quadratic Bezier in the stroker's current sub-path,
         from the last position.
@@ -2090,7 +2107,7 @@ class Stroker:
         control1: _Pointer[FT_Vector],
         control2: _Pointer[FT_Vector],
         to: _Pointer[FT_Vector],
-    ):
+    ) -> None:
         """
         'Draw' a single quadratic Bezier in the stroker's current sub-path,
         from the last position.
@@ -2121,7 +2138,7 @@ class Stroker:
         """
         ...
 
-    def export_border(self, border: int, outline: Outline):
+    def export_border(self, border: int, outline: Outline) -> None:
         """
         Call this function after 'get_border_counts' to export the
         corresponding border to your own 'Outline' structure.
@@ -2183,6 +2200,7 @@ class VariationAxis(object):
     strid: int
 
     def __init__(self, ftvaraxis: FT_Var_Axis) -> None: ...
+    @override
     def __repr__(self) -> str: ...
 
 class VariationInstance(object):
@@ -2191,6 +2209,7 @@ class VariationInstance(object):
     coords: tuple[_Fixed, ...]
 
     def __init__(self, name: str, psname: str, coords: tuple[_Fixed, ...]) -> None: ...
+    @override
     def __repr__(self) -> str: ...
 
 class VariationSpaceInfo(object):

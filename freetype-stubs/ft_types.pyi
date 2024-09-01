@@ -14,10 +14,11 @@ from ctypes import (
     c_ushort,
     c_void_p,
 )
-from typing import TYPE_CHECKING, Annotated, Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ctypes import _FuncPointer
+    # intentionally annotate with a pseudo type.
+    from ctypes import _FuncPointer  # pyright: ignore[reportPrivateUsage]
     # provided by typeshed, and does not exist in ctypes module
 
 FT_Byte    = c_ubyte
