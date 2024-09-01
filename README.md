@@ -1,3 +1,3 @@
 # freetype-py-stubs
 
-Stubs for rougier/freetype-py.
+Stubs for [freetype-py](https://github.com/rougier/freetype-py).
