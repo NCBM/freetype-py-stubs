@@ -1,7 +1,6 @@
 import sys
 from ctypes import c_void_p
 
-from freetype.ft_enums import FT_KERNING_DEFAULT, FT_LOAD_RENDER
 from freetype.ft_structs import (
     FT_BBox,
     FT_Bitmap,
@@ -1427,7 +1426,7 @@ class Face:
         """
         ...
 
-    def load_glyph(self, index: int, flags: int = FT_LOAD_RENDER) -> None:
+    def load_glyph(self, index: int, flags: int = ...) -> None:
         """
         A function used to load a single glyph into the glyph slot of a face
         object.
@@ -1453,7 +1452,7 @@ class Face:
         """
         ...
 
-    def load_char(self, char: CharLike, flags: int = FT_LOAD_RENDER) -> None:
+    def load_char(self, char: CharLike, flags: int = ...) -> None:
         """
         A function used to load a single glyph into the glyph slot of a face
         object, according to its character code.
@@ -1493,7 +1492,7 @@ class Face:
         ...
 
     def get_kerning(
-        self, left: CharLike, right: CharLike, mode: int = FT_KERNING_DEFAULT
+        self, left: CharLike, right: CharLike, mode: int = ...
     ) -> FT_Vector:
         """
         Return the kerning vector between two glyphs of a same face.
