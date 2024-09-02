@@ -8,7 +8,7 @@ Freetype raw API
 
 This is the raw ctypes freetype binding.
 """
-import ctypes.util
+import ctypes
 import sys
 from ctypes import c_char_p, c_ushort
 
