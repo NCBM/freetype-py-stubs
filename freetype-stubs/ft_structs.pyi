@@ -1013,3 +1013,15 @@ class FT_LayerIterator(Structure):
     num_layers: FT_UInt = ...
     layer: FT_UInt = ...
     p: _Pointer[FT_Byte] = ...
+
+
+@dataclass
+class FT_Size_RequestRec(Structure):
+    type: c_uint
+    width: FT_Long
+    height: FT_Long
+    horiResolution: FT_UInt
+    vertResolution: FT_UInt
+
+
+FT_Size_Request = _Pointer[FT_Size_RequestRec]

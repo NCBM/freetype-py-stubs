@@ -10,12 +10,47 @@ This is the raw ctypes freetype binding.
 """
 import ctypes
 import sys
-from ctypes import c_char_p, c_ushort
+from ctypes import c_char_p, c_int, c_ubyte, c_ushort
+from typing import TYPE_CHECKING, TypeVar
+
+from freetype.ft_structs import (
+    FT_Face,
+    FT_Glyph,
+    FT_GlyphSlot,
+    FT_Library,
+    FT_Matrix,
+    FT_Open_Args,
+    FT_Size_Request,
+    FT_Vector,
+)
+from freetype.ft_types import (
+    FT_Byte,
+    FT_F26Dot6,
+    FT_Fixed,
+    FT_Int,
+    FT_Int32,
+    FT_Long,
+    FT_Pointer,
+    FT_UInt,
+)
 
 # from freetype.ft_enums import *
 # from freetype.ft_errors import *
 # from freetype.ft_structs import *
 # from freetype.ft_types import *
+
+if TYPE_CHECKING:
+    # intentionally annotate with a pseudo type.
+    # from ctypes import _FuncPointer, _Pointer
+    from ctypes import (
+        _CArgObject,  # pyright: ignore[reportPrivateUsage]
+        _CData,  # pyright: ignore[reportPrivateUsage]
+        _Pointer,  # pyright: ignore[reportPrivateUsage]
+    )
+    _CT = TypeVar("_CT", bound=_CData)
+    _ByteString = c_char_p | _Pointer[FT_Byte] | bytes
+    _Int = FT_Int | int
+    Pointer = _Pointer[_CT] | _CArgObject
 
 _possibly_unbound: bool
 """Pseudo symbol for those which may unbound if unsupported"""
@@ -33,38 +68,67 @@ filename: str
 
 _lib: ctypes.CDLL
 
-FT_Init_FreeType       = _lib.FT_Init_FreeType
-FT_Done_FreeType       = _lib.FT_Done_FreeType
-FT_Library_Version     = _lib.FT_Library_Version
+# Those pseudo functions returning int are actually `FT_Error`.
 
-FT_Library_SetLcdFilter= _lib.FT_Library_SetLcdFilter  # do nothing if unsupported
+# FT_Init_FreeType       = _lib.FT_Init_FreeType
+# FT_Done_FreeType       = _lib.FT_Done_FreeType
+# FT_Library_Version     = _lib.FT_Library_Version
 
-if _possibly_unbound:
-    FT_Library_SetLcdFilterWeights = _lib.FT_Library_SetLcdFilterWeights
+def FT_Init_FreeType(alibrary: Pointer[FT_Library], /) -> int: ...
+def FT_Done_FreeType(library: FT_Library, /) -> int: ...
+def FT_Library_Version(library: FT_Library, amajor: Pointer[FT_Int], aminor: Pointer[FT_Int], apatch: Pointer[FT_Int], /) -> None: ...
 
-FT_New_Face            = _lib.FT_New_Face
-FT_New_Memory_Face     = _lib.FT_New_Memory_Face
-FT_Open_Face           = _lib.FT_Open_Face
-FT_Attach_File         = _lib.FT_Attach_File
-FT_Attach_Stream       = _lib.FT_Attach_Stream
+# FT_Library_SetLcdFilter= _lib.FT_Library_SetLcdFilter  # do nothing if unsupported
+def FT_Library_SetLcdFilter(library: FT_Library, filter: c_int, /) -> int: ...
 
 if _possibly_unbound:
-    FT_Reference_Face      = _lib.FT_Reference_Face
+    # FT_Library_SetLcdFilterWeights = _lib.FT_Library_SetLcdFilterWeights
+    def FT_Library_SetLcdFilterWeights(library: FT_Library, weights: Pointer[c_ubyte], /) -> int: ...
 
-FT_Done_Face           = _lib.FT_Done_Face
-FT_Done_Glyph          = _lib.FT_Done_Glyph
-FT_Select_Size         = _lib.FT_Select_Size
-FT_Request_Size        = _lib.FT_Request_Size
-FT_Set_Char_Size       = _lib.FT_Set_Char_Size
-FT_Set_Pixel_Sizes     = _lib.FT_Set_Pixel_Sizes
-FT_Load_Glyph          = _lib.FT_Load_Glyph
-FT_Load_Char           = _lib.FT_Load_Char
-FT_Set_Transform       = _lib.FT_Set_Transform
-FT_Render_Glyph        = _lib.FT_Render_Glyph
-FT_Get_Kerning         = _lib.FT_Get_Kerning
-FT_Get_Track_Kerning   = _lib.FT_Get_Track_Kerning
-FT_Get_Glyph_Name      = _lib.FT_Get_Glyph_Name
-FT_Get_Glyph           = _lib.FT_Get_Glyph
+# FT_New_Face            = _lib.FT_New_Face
+# FT_New_Memory_Face     = _lib.FT_New_Memory_Face
+# FT_Open_Face           = _lib.FT_Open_Face
+# FT_Attach_File         = _lib.FT_Attach_File
+# FT_Attach_Stream       = _lib.FT_Attach_Stream
+def FT_New_Face(library: FT_Library, filepathname: _ByteString, face_index: FT_Long, aface: Pointer[FT_Face], /) -> int: ...
+def FT_New_Memory_Face(library: FT_Library, file_base: _ByteString, file_size: FT_Long, face_index: FT_Long, aface: Pointer[FT_Face], /) -> int: ...
+def FT_Open_Face(library: FT_Library, args: Pointer[FT_Open_Args], face_index: FT_Long, aface: Pointer[FT_Face], /) -> int: ...
+def FT_Attach_File(face: FT_Face, filepathname: _ByteString, /) -> int: ...
+def FT_Attach_Stream(face: FT_Face, parameters: Pointer[FT_Open_Args], /) -> int: ...
+
+if _possibly_unbound:
+    # FT_Reference_Face      = _lib.FT_Reference_Face
+    def FT_Reference_Face(face: FT_Face, /) -> int: ...
+
+# FT_Done_Face           = _lib.FT_Done_Face
+# FT_Done_Glyph          = _lib.FT_Done_Glyph
+# FT_Select_Size         = _lib.FT_Select_Size
+# FT_Request_Size        = _lib.FT_Request_Size
+# FT_Set_Char_Size       = _lib.FT_Set_Char_Size
+# FT_Set_Pixel_Sizes     = _lib.FT_Set_Pixel_Sizes
+# FT_Load_Glyph          = _lib.FT_Load_Glyph
+# FT_Load_Char           = _lib.FT_Load_Char
+# FT_Set_Transform       = _lib.FT_Set_Transform
+# FT_Render_Glyph        = _lib.FT_Render_Glyph
+# FT_Get_Kerning         = _lib.FT_Get_Kerning
+# FT_Get_Track_Kerning   = _lib.FT_Get_Track_Kerning
+# FT_Get_Glyph_Name      = _lib.FT_Get_Glyph_Name
+# FT_Get_Glyph           = _lib.FT_Get_Glyph
+
+def FT_Done_Face(face: FT_Face, /) -> int: ...
+def FT_Done_Glyph(glyph: FT_Glyph, /) -> None: ...
+def FT_Select_Size(face: FT_Face, strike_index: _Int, /) -> int: ...
+def FT_Request_Size(face: FT_Face, req: FT_Size_Request, /) -> int: ...
+def FT_Set_Char_Size(face: FT_Face, char_width: FT_F26Dot6, char_height: FT_F26Dot6, horz_resolution: FT_UInt, vert_resolution: FT_UInt, /) -> int: ...
+def FT_Set_Pixel_Sizes(face: FT_Face, pixel_width: FT_UInt, pixel_height: FT_UInt, /) -> int: ...
+def FT_Load_Glyph(face: FT_Face, glyph_index: FT_UInt, load_flags: FT_Int32, /) -> int: ...
+def FT_Load_Char(face: FT_Face, char_code: FT_UInt, load_flags: FT_Int32, /) -> int: ...
+def FT_Set_Transform(face: FT_Face, matrix: Pointer[FT_Matrix], delta: Pointer[FT_Vector], /) -> None: ...
+def FT_Render_Glyph(slot: FT_GlyphSlot, render_mode: _Int, /) -> int: ...
+def FT_Get_Kerning(face: FT_Face, left_glyph: FT_UInt, right_glyph: FT_UInt, kern_mode: FT_UInt, akerning: Pointer[FT_Vector], /) -> int: ...
+def FT_Get_Track_Kerning(face: FT_Face, point_size: FT_Fixed, degree: FT_Int, akerning: Pointer[FT_Fixed], /) -> int: ...
+def FT_Get_Glyph_Name(face: FT_Face, glyph_index: FT_UInt, buffer: FT_Pointer, buffer_max: FT_UInt, /) -> int: ...
+def FT_Get_Glyph(slot: FT_GlyphSlot, aglyph: Pointer[FT_Glyph]) -> int: ...
 
 FT_Glyph_Get_CBox      = _lib.FT_Glyph_Get_CBox
 
